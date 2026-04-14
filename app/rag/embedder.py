@@ -1,25 +1,17 @@
 import chromadb
-from openai import OpenAI
+from sentence_transformers import SentenceTransformer
 from app.rag.extractor import extract_schema
 import os 
-from dotenv import load_dotenv
-
-load_dotenv()
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
 
 #ChromaDB stored locally 
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
 
 COLLECTION_NAME = "schema_chunks"
 
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
 def embed_text(text:str) -> list[float]:
-    response = client.embeddings.create(
-        input=text,
-        model="text-embedding-3-small"
-    )
-    return response.data[0].embedding
+    return model.encode(text).tolist()
 
 def index_schema():
     #DELETE AND RECREATE SO RERUN STAYS CLEAN
