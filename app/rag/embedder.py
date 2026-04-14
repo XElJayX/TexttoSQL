@@ -1,21 +1,17 @@
 import chromadb
 from sentence_transformers import SentenceTransformer
 from app.rag.extractor import extract_schema
-import os 
 
-#ChromaDB stored locally 
-chroma_client = chromadb.PersistentClient(path="./chroma_db")
-
+chroma_client = chromadb.PersistentClient(path="./chroma_store")
 COLLECTION_NAME = "schema_chunks"
 
-model = SentenceTransformer('all-MiniLM-L6-v2')
+# This downloads once (~90MB) and caches locally after that
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
-def embed_text(text:str) -> list[float]:
+def embed_text(text: str) -> list[float]:
     return model.encode(text).tolist()
 
 def index_schema():
-    #DELETE AND RECREATE SO RERUN STAYS CLEAN
-
     try:
         chroma_client.delete_collection(COLLECTION_NAME)
     except Exception:
@@ -32,14 +28,11 @@ def index_schema():
             ids=[chunk["table_name"]],
             embeddings=[embedding],
             documents=[chunk["chunk"]],
-            metadatas=[{"table": chunk["table_name"]}]
+            metadatas=[{"table_name": chunk["table_name"]}]
         )
         print(f"  Indexed: {chunk['table_name']}")
 
     print(f"\nDone. {len(chunks)} tables indexed into ChromaDB.")
-    return collection
-
 
 if __name__ == "__main__":
     index_schema()
-
