@@ -28,3 +28,4 @@ def generate_sql(question:str)-> str:
             sql = sql[idx:]
             break
     return sql
+    
