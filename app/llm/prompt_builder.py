@@ -1,0 +1,17 @@
+def build_prompt(question:str, schema_context:str)-> str:
+    return f"""You are a SQL expert. Given the following database schema, 
+    write a PostgreSQL query to answer the user's question.
+
+    SCHEMA:
+    {schema_context}
+
+    RULES:
+    - Only use tables and columns that exist in the schema above
+    - Return only the SQL query, no explanation
+    - Use table aliases for readability
+    - If the question is ambiguous, make reasonable assumptions based on the schema
+
+    QUESTION:
+    {question}
+
+    SQL:"""
