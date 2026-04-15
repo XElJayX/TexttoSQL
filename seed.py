@@ -2,19 +2,15 @@ import random
 from datetime import datetime, timedelta
 from faker import Faker
 import psycopg2
+from app.db.connection import get_connection
 from psycopg2.extras import execute_values, register_uuid
 import uuid
 
 fake = Faker()
 register_uuid()
 
-conn = psycopg2.connect(
-    host="localhost",
-    dbname='saas_metrics',
-    user='postgres',
-    password='postgres',
-    port=5432
-)
+conn = get_connection()
+
 
 cur = conn.cursor()
 
