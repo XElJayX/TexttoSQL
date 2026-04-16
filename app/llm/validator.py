@@ -25,5 +25,3 @@ def validate_sql(sql:str) -> tuple[bool, str]:
         conn.close()
     
     return True, "SQL is valid and safe"
-
-    

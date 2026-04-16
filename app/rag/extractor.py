@@ -46,8 +46,20 @@ def extract_schema():
         sample_rows = cur.fetchall()
         col_names = [desc[0] for desc in cur.description]
 
+        TABLE_DESCRIPTIONS = {
+            "companies": "Contains company accounts. Use for questions about organizations, customers, industries, or which companies did something.",
+            "users": "Contains user accounts and login history. Use for questions about user activity, last login, never logged in, or inactive users.",
+            "subscriptions": "Contains subscription status including active, cancelled, paused, trialing. Use for churn, cancellations, upgrades.",
+            "plans": "Contains pricing plans and tiers. Use for questions about revenue, plan features, or tier comparisons.",
+            "invoices": "Contains payment records. Use for revenue, failed payments, or billing questions.",
+            "subscription_events": "Contains event history like plan upgrades, payment failures, trial conversions.",
+            "feature_usage": "Contains daily feature usage per user. Use for product analytics or engagement questions.",
+        }
+
         #BUILD human readable text description of the table
         chunk = f"Table: {table}\n"
+        if table in TABLE_DESCRIPTIONS:
+            chunk += f"Description: {TABLE_DESCRIPTIONS[table]}\n"
         chunk += "Columns:\n"
         for col_name, data_type, nullable in columns:
             null_str = "nullable" if nullable=="YES" else "not nullable"

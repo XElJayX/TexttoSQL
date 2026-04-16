@@ -29,6 +29,7 @@ def retrieve_relevant_tables(question: str, top_k: int = 3) -> str:
 if __name__ == "__main__":
     questions = [
         "which companies have cancelled their subscriptions recently?",
+        "which companies have cancelled?",
         "what is our monthly recurring revenue by plan?",
         "which users haven't logged in for more than 30 days?",
         "which features are used most by enterprise customers?",

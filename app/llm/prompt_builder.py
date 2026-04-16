@@ -10,6 +10,7 @@ def build_prompt(question:str, schema_context:str)-> str:
     - Return only the SQL query, no explanation
     - Use table aliases for readability
     - If the question is ambiguous, make reasonable assumptions based on the schema
+    - Prefer simple queries over complex ones. If the answer is in one table, do not join other tables.
 
     QUESTION:
     {question}
