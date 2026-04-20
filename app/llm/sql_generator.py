@@ -4,8 +4,9 @@ from app.llm.validator import validate_sql
 import ollama
 
 
-def generate_sql(question: str) -> str:
-    schema_context = retrieve_relevant_tables(question)
+def generate_sql(question: str, schema_context=None) -> str:
+    if schema_context is None:
+        schema_context = retrieve_relevant_tables(question)
     prompt = build_prompt(question, schema_context)
 
     # FOR DEBUG

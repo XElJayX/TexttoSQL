@@ -26,6 +26,26 @@ def retrieve_relevant_tables(question: str, top_k: int = 4) -> str:
 
     return "\n\n".join(retrieved_chunks)
 
+def retrieve_with_metadata(question: str, top_k: int = 4) -> dict:
+    collection = chroma_client.get_collection(COLLECTION_NAME)
+    query_embedding = embed_text(question)
+
+    results = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=top_k
+    )
+
+    retrieved_chunks = results["documents"][0]
+    retrieved_tables = results["metadatas"][0]
+
+    print(f"\nQuestion: {question}")
+    print(f"Retrieved tables: {[t['table_name'] for t in retrieved_tables]}")
+
+    return {
+        "tables": [t["table_name"] for t in retrieved_tables],
+        "chunks": "\n\n".join(retrieved_chunks)
+    }
+
 if __name__ == "__main__":
     questions = [
     "which companies have cancelled their subscriptions recently?",
