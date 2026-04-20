@@ -9,7 +9,7 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 def embed_text(text: str) -> list[float]:
     return model.encode(text).tolist()
 
-def retrieve_relevant_tables(question: str, top_k: int = 3) -> str:
+def retrieve_relevant_tables(question: str, top_k: int = 4) -> str:
     collection = chroma_client.get_collection(COLLECTION_NAME)
     query_embedding = embed_text(question)
 
@@ -28,11 +28,10 @@ def retrieve_relevant_tables(question: str, top_k: int = 3) -> str:
 
 if __name__ == "__main__":
     questions = [
-        "which companies have cancelled their subscriptions recently?",
-        "which companies have cancelled?",
-        "what is our monthly recurring revenue by plan?",
-        "which users haven't logged in for more than 30 days?",
-        "which features are used most by enterprise customers?",
+    "which companies have cancelled their subscriptions recently?",
+    "which users have never logged in?",
+    "what is our monthly recurring revenue by plan?",
+    "which features are used most by enterprise customers?",
     ]
     for q in questions:
         context = retrieve_relevant_tables(q)

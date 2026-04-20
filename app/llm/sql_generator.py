@@ -9,22 +9,22 @@ def generate_sql(question: str) -> str:
     prompt = build_prompt(question, schema_context)
 
     # FOR DEBUG
-    print(
-        "\n--- PROMPT SENT TO LLM ---"
-        f"\n{prompt}\n"
-        "-------------------------\n"
-    )
+    # print(
+    #     "\n--- PROMPT SENT TO LLM ---"
+    #     f"\n{prompt}\n"
+    #     "-------------------------\n"
+    # )
 
     response = ollama.chat(
         model="llama3.2",
         messages=[{"role": "user", "content": prompt}]
     )
 
-    print(
-        "\n--- RESPONSE FROM LLM ---"
-        f"\n{response.message.content}\n"
-        "-------------------------\n"
-    )
+    # print(
+    #     "\n--- RESPONSE FROM LLM ---"
+    #     f"\n{response.message.content}\n"
+    #     "-------------------------\n"
+    # )
 
     sql = response.message.content.strip()
 
@@ -68,9 +68,8 @@ Fix the SQL and return only the corrected query."""
 
 if __name__ == "__main__":
     questions = [
-        "which companies have cancelled their subscriptions?",
-        "what is the total revenue by plan?",
-        "which users have never logged in?",
+        "which subscriptions have generated invoices over 100 dollars?",
+         "which users have used any feature?",
     ]
 
     for q in questions:
