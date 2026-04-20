@@ -126,6 +126,7 @@ def extract_schema():
                 # Truncate long values so chunks stay compact
                 row_str = {k: str(v) for k, v in row_dict.items() if v is not None}
                 chunk += f"  {row_str}\n"
+        chunk+= "\n- country: known values include 'US', 'UK', 'Canada', 'Germany', 'Australia', 'France'\n"
         schema_chunks.append({
             "table_name": table,
             "chunk": chunk

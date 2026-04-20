@@ -1,7 +1,10 @@
 from app.rag.retriever import retrieve_relevant_tables
 from app.llm.prompt_builder import build_prompt
 from app.llm.validator import validate_sql
-import ollama
+from groq import Groq
+import os
+
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 
 def generate_sql(question: str, schema_context=None) -> str:
@@ -16,8 +19,8 @@ def generate_sql(question: str, schema_context=None) -> str:
     #     "-------------------------\n"
     # )
 
-    response = ollama.chat(
-        model="llama3.2",
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
         messages=[{"role": "user", "content": prompt}]
     )
 
@@ -27,7 +30,7 @@ def generate_sql(question: str, schema_context=None) -> str:
     #     "-------------------------\n"
     # )
 
-    sql = response.message.content.strip()
+    sql = response.choices[0].message.content.strip()
 
     keywords = ["SELECT", "FROM", "WHERE", "UPDATE", "DELETE", "WITH", "INSERT"]
 
@@ -47,8 +50,8 @@ ERROR: {msg}
 
 Fix the SQL and return only the corrected query."""
 
-        response = ollama.chat(
-            model="llama3.2",
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
             messages=[
                 {"role": "user", "content": prompt},
                 {"role": "assistant", "content": sql},
@@ -56,7 +59,7 @@ Fix the SQL and return only the corrected query."""
             ],
         )
 
-        sql = response.message.content.strip()
+        sql = response.choices[0].message.content.strip()
         valid, msg = validate_sql(sql)
 
         if not valid:

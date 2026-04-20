@@ -10,3 +10,4 @@ class QueryResponse(BaseModel):
     success: bool
     error: Optional[str] = None
     retrieved_tables: Optional[list[str]] = None
+    columns: Optional[list[str]] = None
