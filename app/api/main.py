@@ -4,11 +4,25 @@ from app.api.models import QueryRequest, QueryResponse
 from app.rag.retriever import retrieve_with_metadata
 from app.llm.sql_generator import generate_sql
 from app.db.connection import get_connection
+from contextlib import asynccontextmanager
+from app.rag.embedder import index_schema
+import os
+print("ENV CHECK:", {
+    "DATABASE_URL": os.getenv("DATABASE_URL"),
+    "DB_HOST": os.getenv("DB_HOST"),
+    "GROQ_API_KEY": "SET" if os.getenv("GROQ_API_KEY") else "MISSING"
+})
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Indexing schema on startup...")
+    index_schema()
+    print("Schema indexed.")
+    yield
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )

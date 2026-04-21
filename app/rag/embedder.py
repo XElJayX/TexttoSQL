@@ -1,15 +1,16 @@
 import chromadb
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 from app.rag.extractor import extract_schema
 
 chroma_client = chromadb.PersistentClient(path="./chroma_store")
 COLLECTION_NAME = "schema_chunks"
 
 # This downloads once (~90MB) and caches locally after that
-model = SentenceTransformer("all-MiniLM-L6-v2")
+model = TextEmbedding("BAAI/bge-small-en-v1.5")
 
 def embed_text(text: str) -> list[float]:
-    return model.encode(text).tolist()
+    embeddings = list(model.embed([text]))
+    return embeddings[0].tolist()
 
 def index_schema():
     try:

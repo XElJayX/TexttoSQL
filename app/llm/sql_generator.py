@@ -4,10 +4,10 @@ from app.llm.validator import validate_sql
 from groq import Groq
 import os
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 
 def generate_sql(question: str, schema_context=None) -> str:
+    client = Groq(api_key=os.getenv("GROQ_API_KEY"))
     if schema_context is None:
         schema_context = retrieve_relevant_tables(question)
     prompt = build_prompt(question, schema_context)
