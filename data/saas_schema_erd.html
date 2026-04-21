@@ -1,0 +1,128 @@
+
+<div id="erd"></div>
+<style>
+  /* Page & SVG background to black and text to white for readability */
+  html, body { background: #000; color: #fff; margin: 0; height: 100%; }
+  #erd, #erd svg { background: #000; }
+  /* Do not force SVG text color globally; node text is set in script for contrast */
+</style>
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+await document.fonts.ready;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: '"Anthropic Sans", sans-serif',
+  themeVariables: {
+    darkMode: dark,
+    fontSize: '13px',
+    fontFamily: '"Anthropic Sans", sans-serif',
+    lineColor: dark ? '#9c9a92' : '#73726c',
+    textColor: dark ? '#c2c0b6' : '#3d3d3a',
+  },
+});
+const { svg } = await mermaid.render('erd-svg', `erDiagram
+  companies ||--o{ users : "has"
+  companies ||--o{ plans : "subscribes to"
+  plans ||--o{ subscriptions : "used in"
+  users ||--o{ subscriptions : "owns"
+  subscriptions ||--o{ invoices : "generates"
+  subscriptions ||--o{ subscription_events : "logs"
+  users ||--o{ feature_usage : "tracks"
+
+  companies {
+    uuid id PK
+    string name
+    string industry
+    string country
+    timestamp created_at
+  }
+  users {
+    uuid id PK
+    uuid company_id FK
+    string email
+    string role
+    timestamp created_at
+    timestamp last_login_at
+  }
+  plans {
+    uuid id PK
+    string name
+    string tier
+    decimal monthly_price_usd
+    int max_seats
+    bool has_analytics
+    bool has_api_access
+  }
+  subscriptions {
+    uuid id PK
+    uuid company_id FK
+    uuid plan_id FK
+    string status
+    timestamp started_at
+    timestamp cancelled_at
+    int seat_count
+  }
+  invoices {
+    uuid id PK
+    uuid subscription_id FK
+    decimal amount_usd
+    string status
+    timestamp issued_at
+    timestamp paid_at
+  }
+  subscription_events {
+    uuid id PK
+    uuid subscription_id FK
+    string event_type
+    jsonb metadata
+    timestamp occurred_at
+  }
+  feature_usage {
+    uuid id PK
+    uuid user_id FK
+    string feature_name
+    int usage_count
+    date usage_date
+  }
+`);
+document.getElementById('erd').innerHTML = svg;
+document.querySelectorAll('#erd svg .node').forEach(node => {
+  const firstPath = node.querySelector('path[d]');
+  if (!firstPath) return;
+  const d = firstPath.getAttribute('d');
+  const nums = d.match(/-?[\d.]+/g)?.map(Number);
+  if (!nums || nums.length < 8) return;
+  const xs = [nums[0], nums[2], nums[4], nums[6]];
+  const ys = [nums[1], nums[3], nums[5], nums[7]];
+  const x = Math.min(...xs), y = Math.min(...ys);
+  const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', x); rect.setAttribute('y', y);
+  rect.setAttribute('width', w); rect.setAttribute('height', h);
+  rect.setAttribute('rx', '8');
+  // preserve non-visual attributes but override presentation attributes
+  for (const a of ['class', 'style']) {
+    if (firstPath.hasAttribute(a)) rect.setAttribute(a, firstPath.getAttribute(a));
+  }
+  // set node background to light so black text is readable on the dark page
+  const nodeFill = '#ffffff';
+  const nodeStroke = '#cfcfcf';
+  rect.setAttribute('fill', nodeFill);
+  rect.setAttribute('stroke', nodeStroke);
+  rect.setAttribute('stroke-width', firstPath.getAttribute('stroke-width') || '1');
+
+  // Ensure any text inside this node is visible (black)
+  node.querySelectorAll('text').forEach(t => {
+    try {
+      t.setAttribute('fill', '#000');
+      t.style.fill = '#000';
+    } catch (e) {
+      /* ignore text update failures */
+    }
+  });
+
+  firstPath.replaceWith(rect);
+});
+</script>
