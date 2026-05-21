@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from app.api.models import QueryRequest, QueryResponse
 from app.rag.retriever import retrieve_with_metadata
 from app.llm.sql_generator import generate_sql
@@ -7,11 +8,7 @@ from app.db.connection import get_connection
 from contextlib import asynccontextmanager
 from app.rag.embedder import index_schema
 import os
-print("ENV CHECK:", {
-    "DATABASE_URL": os.getenv("DATABASE_URL"),
-    "DB_HOST": os.getenv("DB_HOST"),
-    "GROQ_API_KEY": "SET" if os.getenv("GROQ_API_KEY") else "MISSING"
-})
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Indexing schema on startup...")
@@ -26,7 +23,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+@app.options("/query")
+async def options_query(request: Request):
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
+        }
+    )
+    
 @app.post("/query", response_model=QueryResponse)
 async def query(query:QueryRequest) -> QueryResponse:
     try:
